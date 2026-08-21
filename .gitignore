@@ -1,3 +1,76 @@
-# OS temp files
+# ---- Dependencies ----
+node_modules/
+.pnp
+.pnp.js
+.yarn/
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+
+# ---- Build output (Vite / extension bundle) ----
+dist/
+dist-ssr/
+build/
+out/
+*.local
+
+# ---- Chrome extension packaging ----
+# Signed packages and the private key must never be committed
+*.zip
+*.crx
+*.pem
+web-ext-artifacts/
+
+# ---- Vite / TypeScript caches ----
+.vite/
+node_modules/.vite/
+.cache/
+*.tsbuildinfo
+
+# ---- Testing ----
+coverage/
+.nyc_output/
+# Vitest
+.vitest/
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
+blob-report/
+
+# ---- Environment ----
+.env
+.env.*
+!.env.example
+
+# ---- Logs ----
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ---- Editors / IDE ----
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example
+.idea/
+*.swp
+*.swo
+*.sublime-workspace
+
+# ---- Claude Code (keep shared agents & commands, ignore local overrides) ----
+.claude/settings.local.json
+.claude/local/
+
+# ---- OS temp files ----
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
 Thumbs.db
+ehthumbs.db
+Desktop.ini
