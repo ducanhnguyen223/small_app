@@ -1,12 +1,8 @@
-# CLAUDE.md - Reading Diary
-
-Project-specific instructions for Claude Code.
-
 ## Project Overview
 
 **Reading Diary** is a Chrome Extension for capturing and managing reading notes with keyboard shortcuts.
 
-- **Tech Stack:** React 19, TypeScript, Vite, Zustand, Tailwind CSS
+- **Tech Stack:** React, TypeScript, Vite, Zustand, Tailwind CSS
 - **Testing:** Vitest, React Testing Library, Playwright
 - **Docs:** `docs/PRD.md`
 
@@ -20,16 +16,31 @@ npm run test:run     # Unit tests (single run)
 npm run test:e2e     # E2E tests
 ```
 
+## Required Skills (Development)
+
+Two skills MUST be used during the implementation steps of the TDD cycle
+(steps 1.5 / 2.5 / 3.5 - i.e. whenever writing or refactoring source code).
+
+| Skill | When to use | Applies to |
+| ----- | ----------- | ---------- |
+| **ui-ux-pro-max** | Before/while building or changing any UI | `src/popup/**` components, layout, styling, interaction, accessibility |
+| **vercel-react-best-practices** | Before/while writing or refactoring React/TS code | Components, hooks, Zustand store usage, rendering and bundle performance |
+
+### Rules
+
+1. **ALWAYS invoke `ui-ux-pro-max`** before implementing or modifying any component that renders UI.
+2. **ALWAYS invoke `vercel-react-best-practices`** before implementing or refactoring React components, hooks, or state logic.
+3. Both skills apply to the **implementation phase only** - they never replace or reorder the testing pyramid (unit -> integration -> e2e).
+4. Skills do not change test expectations: if a skill's recommendation conflicts with an approved test case, keep the test green and raise the conflict with the user.
+5. If a skill is not installed yet, note it once and continue - do not block the TDD cycle.
+
+---
+
 ## Project Structure (Update frequently if changes)
 
 ```
 reading-diary/
 ├── src/
-│   ├── popup/          # Popup UI components
-│   ├── background/     # Service worker
-│   ├── store/          # Zustand store
-│   ├── types/          # TypeScript types
-│   └── utils/          # Utilities
 ├── tests/
 │   ├── unit/           # Unit tests
 │   ├── integration/    # Integration tests
@@ -52,11 +63,13 @@ This project follows **strict TDD (Test-Driven Development)** with Red-Green-Ref
 
 ### Sub-Agents
 
-| Agent | File | Purpose |
-|-------|------|---------|
-| **unit-tester** | `.claude/agents/unit-tester.md` | Unit test cases & tests |
-| **inte-tester** | `.claude/agents/inte-tester.md` | Integration test cases & tests |
-| **e2e-tester** | `.claude/agents/e2e-tester.md` | E2E test cases & tests |
+
+| Agent           | File                            | Purpose                            |
+| --------------- | ------------------------------- | ---------------------------------- |
+| **unit-tester** | `.claude/agents/unit-tester.md` | Unit test cases &amp; tests        |
+| **inte-tester** | `.claude/agents/inte-tester.md` | Integration test cases &amp; tests |
+| **e2e-tester**  | `.claude/agents/e2e-tester.md`  | E2E test cases &amp; tests         |
+
 
 ---
 
@@ -240,12 +253,14 @@ Main Agent:
 
 ## Test File Naming Convention
 
-| Type | Location | Pattern |
-|------|----------|---------|
-| Unit | `tests/unit/` | `{module}.test.ts` |
-| Integration | `tests/integration/` | `{feature}.test.tsx` |
-| E2E | `tests/e2e/` | `{feature}.spec.ts` |
-| Test Cases | `docs/test-cases/{type}/` | `{feature}.md` |
+
+| Type        | Location                  | Pattern              |
+| ----------- | ------------------------- | -------------------- |
+| Unit        | `tests/unit/`             | `{module}.test.ts`   |
+| Integration | `tests/integration/`      | `{feature}.test.tsx` |
+| E2E         | `tests/e2e/`              | `{feature}.spec.ts`  |
+| Test Cases  | `docs/test-cases/{type}/` | `{feature}.md`       |
+
 
 ---
 
@@ -269,6 +284,8 @@ docs: {documentation update}
 4. **ALWAYS get user approval on test cases before writing actual tests**
 5. **ALWAYS run tests after every implementation change**
 6. **ALWAYS keep tests green before committing**
+7. **ALWAYS use `ui-ux-pro-max` when implementing UI**
+8. **ALWAYS use `vercel-react-best-practices` when implementing React/TS code**
 
 ---
 
@@ -278,3 +295,5 @@ docs: {documentation update}
 - Unit Tester: `.claude/agents/unit-tester.md`
 - Integration Tester: `.claude/agents/inte-tester.md`
 - E2E Tester: `.claude/agents/e2e-tester.md`
+- Skills: `ui-ux-pro-max`, `vercel-react-best-practices` (installed separately)
+
