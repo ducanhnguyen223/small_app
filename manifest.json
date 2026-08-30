@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Reading Diary",
+  "version": "0.1.0",
+  "description": "Ghi nhật ký đọc bằng phím tắt",
+  "action": {
+    "default_popup": "src/popup/index.html",
+    "default_title": "Reading Diary"
+  },
+  "options_page": "src/options/index.html",
+  "background": {
+    "service_worker": "src/background.ts",
+    "type": "module"
+  },
+  "permissions": ["storage", "alarms", "notifications", "activeTab"],
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+D",
+        "mac": "Command+Shift+D"
+      },
+      "description": "Mở Reading Diary"
+    }
+  }
+}
