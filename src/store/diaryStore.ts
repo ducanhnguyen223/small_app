@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { Entry, EntryDraft, StorageAdapter } from '../lib/types';
+import { chromeStorage } from '../storage';
 
 export type DiaryState = {
   entries: Entry[];
@@ -72,3 +73,6 @@ export function createDiaryStore(
     };
   });
 }
+
+/** Store dùng trong popup và options page. Test luôn dùng createDiaryStore với adapter riêng. */
+export const useDiaryStore = createDiaryStore(chromeStorage);
