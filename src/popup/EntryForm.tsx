@@ -18,21 +18,26 @@ export function EntryForm({ initial, defaultUrl, onSubmit, onCancel }: Props) {
   const [sourceUrl, setSourceUrl] = useState(initial?.sourceUrl ?? defaultUrl ?? '');
   const [errors, setErrors] = useState<ValidationErrors>({});
   const titleRef = useRef<HTMLInputElement>(null);
+  const autofilledUrl = useRef(false);
 
   // F1.4: con trỏ nhảy vào ô tiêu đề ngay khi popup mở
   useEffect(() => {
     titleRef.current?.focus();
   }, []);
 
-  // URL tab về sau khi popup đã mount, nên phải điền muộn — nhưng chỉ khi tạo mới
+  // URL tab về sau khi popup đã mount, nên phải điền muộn — nhưng chỉ khi tạo mới,
+  // và chỉ MỘT LẦN DUY NHẤT, không ghi đè chữ user đã gõ vào ô Nguồn.
   useEffect(() => {
-    if (!initial && defaultUrl) setSourceUrl(defaultUrl);
+    if (!initial && defaultUrl && !autofilledUrl.current) {
+      setSourceUrl(defaultUrl);
+      autofilledUrl.current = true;
+    }
   }, [initial, defaultUrl]);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     const draft: EntryDraft = {
-      title,
+      title: title.trim(),
       category,
       tags: initial?.tags ?? [],
       content: content || undefined,
