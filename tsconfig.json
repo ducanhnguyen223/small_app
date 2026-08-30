@@ -3,9 +3,5 @@
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
-  ],
-  "compilerOptions": {
-    "types": ["vitest/globals", "chrome", "@testing-library/jest-dom"]
-  },
-  "include": ["src", "tests", "vite.config.ts", "vitest.config.ts", "playwright.config.ts"]
+  ]
 }
