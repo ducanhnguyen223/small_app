@@ -35,7 +35,10 @@ export function parseImport(json: string): ImportResult {
       e === null ||
       typeof (e as Record<string, unknown>).id !== 'string' ||
       typeof (e as Record<string, unknown>).title !== 'string' ||
-      typeof (e as Record<string, unknown>).category !== 'string'
+      typeof (e as Record<string, unknown>).category !== 'string' ||
+      !Array.isArray((e as Record<string, unknown>).tags) ||
+      typeof (e as Record<string, unknown>).createdAt !== 'number' ||
+      typeof (e as Record<string, unknown>).updatedAt !== 'number'
     ) {
       return { ok: false, error: 'Có entry không đúng định dạng' };
     }

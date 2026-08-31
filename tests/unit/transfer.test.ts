@@ -48,7 +48,36 @@ describe('parseImport', () => {
     expect(result.ok).toBe(false);
   });
 
-  it('T-06: JSON hợp lệ thì trả entries khớp', () => {
+  it('T-06: entry có tags không phải mảng thì trả lỗi', () => {
+    const result = parseImport(
+      JSON.stringify({
+        version: '1.0',
+        entries: [{ id: 'a', title: 'Test', category: 'blog', tags: 'not-array', createdAt: 1000, updatedAt: 1000 }],
+      }),
+    );
+    expect(result.ok).toBe(false);
+  });
+
+  it('T-07: entry có createdAt/updatedAt không phải number thì trả lỗi', () => {
+    const result = parseImport(
+      JSON.stringify({
+        version: '1.0',
+        entries: [
+          {
+            id: 'a',
+            title: 'Test',
+            category: 'blog',
+            tags: [],
+            createdAt: '1000',
+            updatedAt: 1000,
+          },
+        ],
+      }),
+    );
+    expect(result.ok).toBe(false);
+  });
+
+  it('T-08: JSON hợp lệ thì trả entries khớp', () => {
     const json = toExportJSON([entry()], 1000);
     const result = parseImport(json);
     expect(result.ok).toBe(true);
@@ -57,14 +86,14 @@ describe('parseImport', () => {
 });
 
 describe('mergeEntries', () => {
-  it('T-07: giữ entry cũ, thêm entry mới', () => {
+  it('T-09: giữ entry cũ, thêm entry mới', () => {
     const existing = [entry({ id: 'a' })];
     const imported = [entry({ id: 'b', title: 'Bài mới' })];
     const result = mergeEntries(existing, imported);
     expect(result.map((e) => e.id)).toEqual(['a', 'b']);
   });
 
-  it('T-08: bỏ qua id trùng, giữ bản cũ', () => {
+  it('T-10: bỏ qua id trùng, giữ bản cũ', () => {
     const existing = [entry({ id: 'x', title: 'Bản cũ' })];
     const imported = [entry({ id: 'x', title: 'Bản mới' })];
     const result = mergeEntries(existing, imported);
