@@ -14,6 +14,13 @@ export function installFakeChrome(initial: Record<string, unknown> = {}) {
   const listeners: ChangeListener[] = [];
   let failing = false;
 
+  const alarmsStore: Record<string, number> = {};
+  const alarmListeners: Array<(alarm: { name: string }) => void> = [];
+  const notificationsStore: Record<string, unknown> = {};
+  const notificationClickListeners: Array<(id: string) => void> = [];
+  const createdTabs: { url: string }[] = [];
+  let badgeText = '';
+
   const fake = {
     storage: {
       local: {
@@ -45,6 +52,45 @@ export function installFakeChrome(initial: Record<string, unknown> = {}) {
       query: async () => [
         { url: 'https://example.com/bai-viet', title: 'Bài viết ví dụ' },
       ],
+      create: (opts: { url: string }) => {
+        createdTabs.push(opts);
+      },
+    },
+    alarms: {
+      create: (name: string, opts: { when: number }) => {
+        alarmsStore[name] = opts.when;
+      },
+      clear: async (name: string) => {
+        delete alarmsStore[name];
+        return true;
+      },
+      getAll: async () => Object.entries(alarmsStore).map(([name, when]) => ({ name, when })),
+      onAlarm: {
+        addListener: (l: (alarm: { name: string }) => void) => {
+          alarmListeners.push(l);
+        },
+      },
+    },
+    notifications: {
+      create: (id: string, opts: unknown) => {
+        notificationsStore[id] = opts;
+      },
+      clear: async (id: string) => {
+        delete notificationsStore[id];
+      },
+      onClicked: {
+        addListener: (l: (id: string) => void) => {
+          notificationClickListeners.push(l);
+        },
+      },
+    },
+    action: {
+      setBadgeText: async (opts: { text: string }) => {
+        badgeText = opts.text;
+      },
+    },
+    runtime: {
+      getURL: (path: string) => `chrome-extension://test-id/${path}`,
     },
   };
 
@@ -56,5 +102,11 @@ export function installFakeChrome(initial: Record<string, unknown> = {}) {
     failNextSave: () => {
       failing = true;
     },
+    alarms: alarmsStore,
+    notifications: notificationsStore,
+    badgeText: () => badgeText,
+    triggerAlarm: (name: string) => alarmListeners.forEach((l) => l({ name })),
+    triggerNotificationClick: (id: string) => notificationClickListeners.forEach((l) => l(id)),
+    createdTabs,
   };
 }
