@@ -41,7 +41,7 @@ describe('SearchBar', () => {
     const user = userEvent.setup({ delay: null });
     render(<SearchBar onFiltersChange={onFiltersChange} allTags={[]} />);
 
-    await user.selectOptions(screen.getByLabelText('Lọc phân loại'), 'blog');
+    await user.selectOptions(screen.getByLabelText('Lọc danh mục'), 'blog');
     vi.advanceTimersByTime(300);
 
     expect(onFiltersChange).toHaveBeenLastCalledWith(

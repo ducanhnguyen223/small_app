@@ -75,7 +75,7 @@ export function SearchBar({ onFiltersChange, allTags }: Props) {
       />
 
       <select
-        aria-label="Lọc phân loại"
+        aria-label="Lọc danh mục"
         value={category}
         onChange={(e) => setCategory(e.target.value as Category | '')}
         className="w-full rounded border px-2 py-1"
