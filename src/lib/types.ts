@@ -28,3 +28,11 @@ export type StorageAdapter = {
   load(): Promise<Entry[]>;
   save(entries: Entry[]): Promise<void>;
 };
+
+export type Filters = {
+  text?: string;
+  category?: Category;
+  tags?: string[];
+  from?: number;
+  to?: number;
+};
