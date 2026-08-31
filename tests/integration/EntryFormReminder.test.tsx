@@ -43,4 +43,32 @@ describe('EntryForm reminder field', () => {
     render(<EntryForm initial={existing} onSubmit={vi.fn()} />);
     expect(screen.getByLabelText('Nhắc nhở')).toHaveValue('2099-06-15T08:30');
   });
+
+  it('ERM-04: sửa entry có reminder đã qua (không đổi field nhắc nhở), Lưu thành công', async () => {
+    // Create a past reminder at clean minute boundary to avoid precision loss
+    const pastReminderMinutes = Math.floor((Date.now() - 60_000) / 60000);
+    const pastReminder = pastReminderMinutes * 60000; // 60s ago, rounded to minute
+    const existing: Entry = {
+      id: 'id-1',
+      title: 'Cũ',
+      category: 'blog',
+      tags: [],
+      createdAt: 1000,
+      updatedAt: 1000,
+      reminderAt: pastReminder,
+    };
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    render(<EntryForm initial={existing} onSubmit={onSubmit} />);
+
+    // Change only title, leave reminder untouched
+    await userEvent.clear(screen.getByLabelText('Tiêu đề'));
+    await userEvent.type(screen.getByLabelText('Tiêu đề'), 'Tiêu đề mới');
+    await userEvent.click(screen.getByRole('button', { name: 'Lưu' }));
+
+    // onSubmit should be called with the original past reminder intact
+    // (datetime-local input loses seconds, so reminder is rounded to minute boundary)
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ title: 'Tiêu đề mới', reminderAt: pastReminder }),
+    );
+  });
 });

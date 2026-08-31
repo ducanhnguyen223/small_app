@@ -58,6 +58,17 @@ export function EntryForm({ initial, defaultUrl, allTags = [], onSubmit, onCance
     };
 
     const found = validateEntry(draft);
+
+    // ponytail: if reminderAt wasn't changed from initial, don't reject past values.
+    // Allow editing entries with expired reminders so long as user didn't alter the reminder.
+    // Compare at minute-level precision since datetime-local input only captures YYYY-MM-DDTHH:mm.
+    const initialReminderMs = initial?.reminderAt;
+    const initialReminderMinute = initialReminderMs ? Math.floor(initialReminderMs / 60000) : undefined;
+    const draftReminderMinute = draft.reminderAt ? Math.floor(draft.reminderAt / 60000) : undefined;
+    if (found.reminderAt && initialReminderMinute === draftReminderMinute && initialReminderMinute !== undefined) {
+      delete found.reminderAt;
+    }
+
     setErrors(found);
     if (Object.keys(found).length > 0) return;
 
