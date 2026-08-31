@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { EntryForm } from './EntryForm';
 import { EntryList } from './EntryList';
+import { SearchBar } from './SearchBar';
 import { onEntriesChanged } from '../storage';
 import { useDiaryStore } from '../store/diaryStore';
-import type { Entry, EntryDraft } from '../lib/types';
+import { filterEntries } from '../lib/filter';
+import type { Entry, EntryDraft, Filters } from '../lib/types';
 
 export default function App() {
   const entries = useDiaryStore((s) => s.entries);
@@ -15,6 +17,7 @@ export default function App() {
 
   const [currentUrl, setCurrentUrl] = useState<string>();
   const [editing, setEditing] = useState<Entry | null>(null);
+  const [filters, setFilters] = useState<Filters>({});
 
   useEffect(() => {
     void hydrate();
@@ -41,6 +44,14 @@ export default function App() {
     }
   };
 
+  const allTags = useMemo(() => {
+    const set = new Set<string>();
+    entries.forEach((e) => e.tags.forEach((t) => set.add(t)));
+    return Array.from(set).sort();
+  }, [entries]);
+
+  const visibleEntries = useMemo(() => filterEntries(entries, filters), [entries, filters]);
+
   return (
     <div className="flex h-full flex-col">
       {error && (
@@ -53,12 +64,20 @@ export default function App() {
         key={editing?.id ?? 'new'}
         initial={editing ?? undefined}
         defaultUrl={currentUrl}
+        allTags={allTags}
         onSubmit={handleSubmit}
         onCancel={editing ? () => setEditing(null) : undefined}
       />
 
+      <SearchBar onFiltersChange={setFilters} allTags={allTags} />
+
       <div className="flex-1 overflow-y-auto border-t">
-        <EntryList entries={entries} onEdit={setEditing} onDelete={deleteEntry} />
+        <EntryList
+          entries={visibleEntries}
+          onEdit={setEditing}
+          onDelete={deleteEntry}
+          highlightQuery={filters.text}
+        />
       </div>
     </div>
   );
