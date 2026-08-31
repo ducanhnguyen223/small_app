@@ -17,6 +17,21 @@ describe('EntryForm + TagInput wiring', () => {
 
     expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ tags: ['react'] }));
   });
+
+  it('W-04: quá 10 tag thì hiện lỗi "Tối đa 10 thẻ", không gọi onSubmit', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    render(<EntryForm onSubmit={onSubmit} />);
+
+    await userEvent.type(screen.getByLabelText('Tiêu đề'), 'Bài mới');
+    const tagInput = screen.getByLabelText('Thêm thẻ');
+    for (let i = 0; i < 11; i++) {
+      await userEvent.type(tagInput, `tag${i}{Enter}`);
+    }
+    await userEvent.click(screen.getByRole('button', { name: 'Lưu' }));
+
+    expect(await screen.findByText('Tối đa 10 thẻ')).toBeVisible();
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
 });
 
 describe('EntryList + highlight wiring', () => {

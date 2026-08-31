@@ -46,7 +46,7 @@ export function SearchBar({ onFiltersChange, allTags }: Props) {
         preset === 'custom'
           ? {
               from: customFrom ? new Date(customFrom).getTime() : undefined,
-              to: customTo ? new Date(customTo).getTime() : undefined,
+              to: customTo ? new Date(customTo).getTime() + (24 * 60 * 60 * 1000 - 1) : undefined,
             }
           : presetRange(preset, Date.now());
 

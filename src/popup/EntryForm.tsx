@@ -109,7 +109,17 @@ export function EntryForm({ initial, defaultUrl, allTags = [], onSubmit, onCance
         )}
       </Field>
 
-      <TagInput tags={tags} onChange={setTags} suggestions={allTags} />
+      <div>
+        <label htmlFor="tags" className="mb-1 block text-sm font-medium">
+          Thẻ
+        </label>
+        <TagInput tags={tags} onChange={setTags} suggestions={allTags} />
+        {errors.tags && (
+          <p id="tags-error" role="alert" className="mt-1 text-sm text-red-600">
+            {errors.tags}
+          </p>
+        )}
+      </div>
 
       <Field label="Nguồn" id="sourceUrl" error={errors.sourceUrl}>
         {(props) => (

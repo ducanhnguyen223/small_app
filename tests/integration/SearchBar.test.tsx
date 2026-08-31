@@ -74,4 +74,20 @@ describe('SearchBar', () => {
       expect.objectContaining({ from: expect.any(Number) }),
     );
   });
+
+  it('SB-06: preset custom, "Từ ngày" = "Đến ngày" thì to là cuối ngày (khác đầu ngày)', async () => {
+    const onFiltersChange = vi.fn();
+    const user = userEvent.setup({ delay: null });
+    render(<SearchBar onFiltersChange={onFiltersChange} allTags={[]} />);
+
+    await user.selectOptions(screen.getByLabelText('Khoảng thời gian'), 'custom');
+    await user.type(screen.getByLabelText('Từ ngày'), '2026-08-31');
+    await user.type(screen.getByLabelText('Đến ngày'), '2026-08-31');
+    vi.advanceTimersByTime(300);
+
+    const startOfDay = new Date('2026-08-31').getTime();
+    const call = onFiltersChange.mock.calls.at(-1)?.[0];
+    expect(call.to).toBeGreaterThanOrEqual(startOfDay + 24 * 60 * 60 * 1000 - 1000);
+    expect(call.to).not.toBe(startOfDay);
+  });
 });
