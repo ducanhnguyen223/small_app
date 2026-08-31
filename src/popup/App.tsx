@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { EntryForm } from './EntryForm';
 import { EntryList } from './EntryList';
 import { SearchBar } from './SearchBar';
+import { ReminderList } from './ReminderList';
 import { onEntriesChanged } from '../storage';
 import { useDiaryStore } from '../store/diaryStore';
 import { filterEntries } from '../lib/filter';
@@ -18,6 +19,8 @@ export default function App() {
   const [currentUrl, setCurrentUrl] = useState<string>();
   const [editing, setEditing] = useState<Entry | null>(null);
   const [filters, setFilters] = useState<Filters>({});
+  const [view, setView] = useState<'list' | 'reminders'>('list');
+  const [handledDeepLink, setHandledDeepLink] = useState(false);
 
   useEffect(() => {
     void hydrate();
@@ -35,6 +38,19 @@ export default function App() {
       .then((tabs) => setCurrentUrl(tabs[0]?.url));
   }, []);
 
+  // E3: Read ?entryId= deep link from URL
+  useEffect(() => {
+    if (handledDeepLink || entries.length === 0) return;
+    const entryId = new URLSearchParams(window.location.search).get('entryId');
+    if (!entryId) {
+      setHandledDeepLink(true);
+      return;
+    }
+    const found = entries.find((e) => e.id === entryId);
+    if (found) setEditing(found);
+    setHandledDeepLink(true);
+  }, [entries, handledDeepLink]);
+
   const handleSubmit = async (draft: EntryDraft) => {
     if (editing) {
       await updateEntry(editing.id, draft);
@@ -42,6 +58,19 @@ export default function App() {
     } else {
       await addEntry(draft);
     }
+  };
+
+  const handleSnooze = async (id: string, newReminderAt: number) => {
+    const entry = entries.find((e) => e.id === id);
+    if (!entry) return;
+    await updateEntry(id, {
+      title: entry.title,
+      category: entry.category,
+      content: entry.content,
+      tags: entry.tags,
+      sourceUrl: entry.sourceUrl,
+      reminderAt: newReminderAt,
+    });
   };
 
   const allTags = useMemo(() => {
@@ -69,15 +98,46 @@ export default function App() {
         onCancel={editing ? () => setEditing(null) : undefined}
       />
 
-      <SearchBar onFiltersChange={setFilters} allTags={allTags} />
+      <div className="flex border-b">
+        <button
+          type="button"
+          onClick={() => setView('list')}
+          aria-pressed={view === 'list'}
+          className="flex-1 px-3 py-2 text-sm"
+        >
+          Danh sách
+        </button>
+        <button
+          type="button"
+          onClick={() => setView('reminders')}
+          aria-pressed={view === 'reminders'}
+          className="flex-1 px-3 py-2 text-sm"
+        >
+          Nhắc nhở
+        </button>
+      </div>
 
       <div className="flex-1 overflow-y-auto border-t">
-        <EntryList
-          entries={visibleEntries}
-          onEdit={setEditing}
-          onDelete={deleteEntry}
-          highlightQuery={filters.text}
-        />
+        {view === 'list' ? (
+          <>
+            <SearchBar onFiltersChange={setFilters} allTags={allTags} />
+            <EntryList
+              entries={visibleEntries}
+              onEdit={setEditing}
+              onDelete={deleteEntry}
+              highlightQuery={filters.text}
+            />
+          </>
+        ) : (
+          <ReminderList
+            entries={entries}
+            onSnooze={handleSnooze}
+            onSelect={(entry) => {
+              setEditing(entry);
+              setView('list');
+            }}
+          />
+        )}
       </div>
     </div>
   );
