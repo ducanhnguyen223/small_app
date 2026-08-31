@@ -5,6 +5,12 @@ import type { Category, Entry, EntryDraft, ValidationErrors } from '../lib/types
 import { validateEntry } from '../lib/validation';
 import { TagInput } from './TagInput';
 
+function toDatetimeLocal(ms: number): string {
+  const d = new Date(ms);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 type Props = {
   initial?: Entry;
   defaultUrl?: string;
@@ -19,6 +25,9 @@ export function EntryForm({ initial, defaultUrl, allTags = [], onSubmit, onCance
   const [content, setContent] = useState(initial?.content ?? '');
   const [tags, setTags] = useState<string[]>(initial?.tags ?? []);
   const [sourceUrl, setSourceUrl] = useState(initial?.sourceUrl ?? defaultUrl ?? '');
+  const [reminderAt, setReminderAt] = useState<string>(
+    initial?.reminderAt ? toDatetimeLocal(initial.reminderAt) : '',
+  );
   const [errors, setErrors] = useState<ValidationErrors>({});
   const titleRef = useRef<HTMLInputElement>(null);
   const autofilledUrl = useRef(false);
@@ -45,7 +54,7 @@ export function EntryForm({ initial, defaultUrl, allTags = [], onSubmit, onCance
       tags,
       content: content || undefined,
       sourceUrl: sourceUrl || undefined,
-      reminderAt: initial?.reminderAt,
+      reminderAt: reminderAt ? new Date(reminderAt).getTime() : undefined,
     };
 
     const found = validateEntry(draft);
@@ -59,6 +68,7 @@ export function EntryForm({ initial, defaultUrl, allTags = [], onSubmit, onCance
         setTitle('');
         setContent('');
         setTags([]);
+        setReminderAt('');
       }
     } catch {
       // Store đã đặt error để App hiện toast. Ở đây cố ý không đụng vào state form
@@ -120,6 +130,18 @@ export function EntryForm({ initial, defaultUrl, allTags = [], onSubmit, onCance
           </p>
         )}
       </div>
+
+      <Field label="Nhắc nhở" id="reminderAt" error={errors.reminderAt}>
+        {(props) => (
+          <input
+            {...props}
+            type="datetime-local"
+            value={reminderAt}
+            onChange={(e) => setReminderAt(e.target.value)}
+            className="w-full rounded border px-2 py-1"
+          />
+        )}
+      </Field>
 
       <Field label="Nguồn" id="sourceUrl" error={errors.sourceUrl}>
         {(props) => (
