@@ -149,4 +149,26 @@ describe('diaryStore', () => {
     await expect(store.getState().deleteEntry('id-1')).rejects.toThrow();
     expect(store.getState().entries).toHaveLength(1);
   });
+
+  it('U-S12: setAll ghi đè toàn bộ entries', async () => {
+    const adapter = fakeAdapter([entry({ id: 'cu' })]);
+    const store = createDiaryStore(adapter);
+    await store.getState().hydrate();
+
+    const next = [entry({ id: 'moi-1' }), entry({ id: 'moi-2' })];
+    await store.getState().setAll(next);
+
+    expect(store.getState().entries.map((e) => e.id).sort()).toEqual(['moi-1', 'moi-2']);
+    expect(adapter.peek().map((e) => e.id).sort()).toEqual(['moi-1', 'moi-2']);
+  });
+
+  it('U-S13: setAll khi ghi lỗi thì hoàn nguyên', async () => {
+    const adapter = fakeAdapter([entry({ id: 'cu' })]);
+    const store = createDiaryStore(adapter);
+    await store.getState().hydrate();
+    adapter.fail();
+
+    await expect(store.getState().setAll([entry({ id: 'moi' })])).rejects.toThrow();
+    expect(store.getState().entries.map((e) => e.id)).toEqual(['cu']);
+  });
 });

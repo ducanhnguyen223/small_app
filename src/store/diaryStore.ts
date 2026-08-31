@@ -10,6 +10,7 @@ export type DiaryState = {
   addEntry: (draft: EntryDraft) => Promise<Entry>;
   updateEntry: (id: string, draft: EntryDraft) => Promise<void>;
   deleteEntry: (id: string) => Promise<void>;
+  setAll: (entries: Entry[]) => Promise<void>;
 };
 
 const sortNewestFirst = (entries: Entry[]): Entry[] =>
@@ -69,6 +70,10 @@ export function createDiaryStore(
 
       deleteEntry: async (id) => {
         await persist(get().entries.filter((e) => e.id !== id));
+      },
+
+      setAll: async (entries) => {
+        await persist(sortNewestFirst(entries));
       },
     };
   });
