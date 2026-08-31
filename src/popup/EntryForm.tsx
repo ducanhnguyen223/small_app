@@ -3,18 +3,21 @@ import type { FormEvent, ReactNode } from 'react';
 import { CATEGORIES } from '../lib/types';
 import type { Category, Entry, EntryDraft, ValidationErrors } from '../lib/types';
 import { validateEntry } from '../lib/validation';
+import { TagInput } from './TagInput';
 
 type Props = {
   initial?: Entry;
   defaultUrl?: string;
+  allTags?: string[];
   onSubmit: (draft: EntryDraft) => Promise<void>;
   onCancel?: () => void;
 };
 
-export function EntryForm({ initial, defaultUrl, onSubmit, onCancel }: Props) {
+export function EntryForm({ initial, defaultUrl, allTags = [], onSubmit, onCancel }: Props) {
   const [title, setTitle] = useState(initial?.title ?? '');
   const [category, setCategory] = useState<Category>(initial?.category ?? 'blog');
   const [content, setContent] = useState(initial?.content ?? '');
+  const [tags, setTags] = useState<string[]>(initial?.tags ?? []);
   const [sourceUrl, setSourceUrl] = useState(initial?.sourceUrl ?? defaultUrl ?? '');
   const [errors, setErrors] = useState<ValidationErrors>({});
   const titleRef = useRef<HTMLInputElement>(null);
@@ -39,7 +42,7 @@ export function EntryForm({ initial, defaultUrl, onSubmit, onCancel }: Props) {
     const draft: EntryDraft = {
       title: title.trim(),
       category,
-      tags: initial?.tags ?? [],
+      tags,
       content: content || undefined,
       sourceUrl: sourceUrl || undefined,
       reminderAt: initial?.reminderAt,
@@ -55,6 +58,7 @@ export function EntryForm({ initial, defaultUrl, onSubmit, onCancel }: Props) {
         // Chỉ dọn form khi tạo mới. Lưu hỏng thì ném lỗi, không chạy tới đây.
         setTitle('');
         setContent('');
+        setTags([]);
       }
     } catch {
       // Store đã đặt error để App hiện toast. Ở đây cố ý không đụng vào state form
@@ -104,6 +108,8 @@ export function EntryForm({ initial, defaultUrl, onSubmit, onCancel }: Props) {
           />
         )}
       </Field>
+
+      <TagInput tags={tags} onChange={setTags} suggestions={allTags} />
 
       <Field label="Nguồn" id="sourceUrl" error={errors.sourceUrl}>
         {(props) => (
